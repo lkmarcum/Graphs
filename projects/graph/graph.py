@@ -113,19 +113,36 @@ class Graph:
         breath-first order.
         """
         # Create a queue
+        q = Queue()
         # Enqueue A PATH TO the starting vertex
+        q.enqueue([starting_vertex])
         # Create a set to store visited vertices
+        visited = set()
         # While the queue is not empty...
-        # Dequeue the first PATH
-        # GRAB THE VERTEX FROM THE END OF THE PATH
-        # Check if it's been visited
-        # If it hasn't been visited...
-        # Mark it as visited
-        # CHECK IF IT'S THE TARGET
-        # IF SO, RETURN THE PATH
-        # Enqueue A PATH TO all it's neighbors
-        # MAKE A COPY OF THE PATH
-        # ENQUEUE THE COPY
+        while q.size() > 0:
+            # Dequeue the first PATH
+            path = q.dequeue()
+            # GRAB THE VERTEX FROM THE END OF THE PATH
+            vertex = path[len(path) - 1]
+            # Check if it's been visited
+            if vertex not in visited:
+                # If it hasn't been visited...
+                # Mark it as visited
+                visited.add(vertex)
+                # CHECK IF IT'S THE TARGET
+                if vertex == destination_vertex:
+                    # IF SO, RETURN THE PATH
+                    return path
+                else:
+                    # Enqueue A PATH TO all it's neighbors
+                    # MAKE A COPY OF THE PATH
+                    # ENQUEUE THE COPY
+                    for neighbor in self.get_neighbors(vertex):
+                        new_path = []
+                        for v in path:
+                            new_path.append(v)
+                        new_path.append(neighbor)
+                        q.enqueue(new_path)
 
     def dfs(self, starting_vertex, destination_vertex):
         """
@@ -198,13 +215,13 @@ if __name__ == '__main__':
         1, 2, 4, 6, 3, 5, 7
     '''
     # graph.dft(1)
-    graph.dft_recursive(1)
+    # graph.dft_recursive(1)
 
     '''
     Valid BFS path:
         [1, 2, 4, 6]
     '''
-    # print(graph.bfs(1, 6))
+    print(graph.bfs(1, 6))
 
     '''
     Valid DFS paths:
