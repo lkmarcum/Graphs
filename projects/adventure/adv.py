@@ -12,17 +12,17 @@ world = World()
 
 # You may uncomment the smaller graphs for development and testing purposes.
 # map_file = "maps/test_line.txt"
-map_file = "maps/test_cross.txt"
+# map_file = "maps/test_cross.txt"
 # map_file = "maps/test_loop.txt"
 # map_file = "maps/test_loop_fork.txt"
-# map_file = "maps/main_maze.txt"
+map_file = "maps/main_maze.txt"
 
 # Loads the map into a dictionary
 room_graph = literal_eval(open(map_file, "r").read())
 world.load_graph(room_graph)
 
 # Print an ASCII map
-world.print_rooms()
+# world.print_rooms()
 
 player = Player(world.starting_room)
 
@@ -40,25 +40,33 @@ for room in world.rooms.items():
 
 def bfs(starting_point):
     q = Queue()
+    # print(f"Starting path: {starting_point}")
     q.enqueue([starting_point])
-    visited = set()
+    checked = set()
     while q.size() > 0:
         path = q.dequeue()
+        # print(f"Dequeue path: {path}")
         current_room = path[-1]
-        visited.add(current_room)
-        for direction in map[current_room]:
-            if map[current_room][direction] == '?':
-                return path
-            if map[current_room][direction] not in visited:
-                path_copy = path.copy()
-                path_copy.append(map[current_room][direction])
-                q.enqueue(path)
+        if '?' in map[current_room].values():
+            # checked.add(current_room)
+            print(f"Return path: {path}")
+            return path
+        else:
+            for direction in map[current_room].values():
+                if direction not in checked:
+                    checked.add(direction)
+                    new_path = []
+                    for v in path:
+                        new_path.append(v)
+                    new_path.append(direction)
+                    q.enqueue(new_path)
 
 
 def make_path():
     starting_room = player.current_room
     inv_directions = {'n': 's', 's': 'n', 'w': 'e', 'e': 'w'}
     finished_rooms = set()
+    # print(f"Finished rooms: {finished_rooms}")
 
     s = Stack()
     s.push([starting_room.id])
@@ -66,7 +74,8 @@ def make_path():
     while s.size() > 0:
         path = s.pop()
         current_room = path[-1]
-        print(f"Current room: {current_room}")
+        # print(f"Current room: {current_room}")
+        # print(f"Total moves: {len(traversal_path)}")
         if len(path) > 1:
             prev_room = path[-2]
             prev_direction = traversal_path[-1]
@@ -79,7 +88,7 @@ def make_path():
                 finished_rooms.add(current_room)
 
         if len(finished_rooms) == len(room_graph):
-            return
+            return len(finished_rooms)
 
         exits = []
         if '?' in map[current_room].values():
@@ -96,27 +105,27 @@ def make_path():
             path.append(next_room)
             s.push(path)
         else:
-            pass
+            # print(f"Current path: {path}")
+            # print(f"Current traversal: {traversal_path}")
 
-            # q = Queue()
-            # q.enqueue([current_room])
-            # visited = set()
-            # while q.size() > 0:
-            #     path = q.dequeue()
-            #     current_room = path[-1]
-            #     visited.add(current_room)
-            #     for direction in map[current_room]:
-            #         if map[current_room][direction] == '?':
-            #             return path
-            #         if map[current_room][direction] not in visited:
-            #             path_copy = path.copy()
-            #             path_copy.append(map[current_room][direction])
-            #             q.enqueue(path)
+            next_moves = bfs(current_room)
+            print(f"Next moves: {next_moves}")
+            if next_moves is not None:
+                for room in next_moves[1:]:
+                    path.append(room)
+                    rev_move = [
+                        key for (key, value) in map[current_room].items() if value == room]
+                    traversal_path.append(rev_move[0])
+                    current_room = room
+            # print(f"New path: {path}")
+            # print(f"New traversal: {traversal_path}")
+                s.push(path)
 
     return
 
 
-print(make_path())
+make_path()
+# print(make_path())
 # TRAVERSAL TEST
 visited_rooms = set()
 player.current_room = world.starting_room
